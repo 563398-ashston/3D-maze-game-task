@@ -1,11 +1,17 @@
 
+
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class PlayerCam : MonoBehaviour
 {
-    public float sensX;
-    public float sensY;
+    [Header("Mouse Settings")]
+    public float sensX = 100f;
+    public float sensY = 100f;
+
+    [Header("Controller Settings")]
+    public float controllerSensX = 150f;
+    public float controllerSensY = 150f;
 
     public Transform orientation;
 
@@ -20,21 +26,36 @@ public class PlayerCam : MonoBehaviour
 
     void Update()
     {
-        // Get mouse input using the new Input System
-        if (Mouse.current == null) return;
+        // Mouse input
+        if (Mouse.current != null)
+        {
+            Vector2 mouseDelta = Mouse.current.delta.ReadValue();
 
-        Vector2 mouseDelta = Mouse.current.delta.ReadValue();
+            float mouseX = mouseDelta.x * Time.deltaTime * sensX;
+            float mouseY = mouseDelta.y * Time.deltaTime * sensY;
 
-        float mouseX = mouseDelta.x * Time.deltaTime * sensX;
-        float mouseY = mouseDelta.y * Time.deltaTime * sensY;
+            yRotation += mouseX;
+            xRotation -= mouseY;
+        }
 
-        yRotation += mouseX;
+        // Controller right stick input
+        if (Gamepad.current != null)
+        {
+            Vector2 stickInput = Gamepad.current.rightStick.ReadValue();
 
-        xRotation -= mouseY;
+            float stickX = stickInput.x * controllerSensX * Time.deltaTime;
+            float stickY = stickInput.y * controllerSensY * Time.deltaTime;
+
+            yRotation += stickX;
+            xRotation -= stickY;
+        }
+
+        // Clamp vertical camera rotation
         xRotation = Mathf.Clamp(xRotation, -90f, 90f);
 
-        // Rotate camera and orientation
+        // Rotate camera and player orientation
         transform.rotation = Quaternion.Euler(xRotation, yRotation, 0f);
         orientation.rotation = Quaternion.Euler(0f, yRotation, 0f);
     }
 }
+
