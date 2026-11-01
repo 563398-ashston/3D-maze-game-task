@@ -1,21 +1,22 @@
-using System.Security.Cryptography;
-using UnityEditor.AdaptivePerformance.Editor;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.Rendering;
 
 public class EnemyAiControl : MonoBehaviour
 {
-    GameObject player;
+    [SerializeField] GameObject player;
 
     NavMeshAgent agent;
 
     [SerializeField] LayerMask groundLayer, playerLayer;
 
+
     //patrol
     Vector3 destPoint;
     bool walkpointSet;
     [SerializeField] float range;
+    [SerializeField] float patrolSpeed = 6;
+    [SerializeField] float chaseSpeed = 10;
+
 
     //State Change 
     [SerializeField] float sightRange;
@@ -23,13 +24,17 @@ public class EnemyAiControl : MonoBehaviour
     bool playerInSight;
     bool playerInAttackRange;
 
-
+    
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
-        player = GameObject.Find("Player");
-    }
+        agent.speed = patrolSpeed;
 
+        /*
+        Debug.Log("Agent null: " + (agent == null));
+        Debug.Log("Player null: " + (player == null));
+        */
+    }
 
     void Update()
     {
@@ -50,13 +55,13 @@ public class EnemyAiControl : MonoBehaviour
         {
             Attack();
         }
-
-        Patrol();
-        Chase();
     }
 
     void Chase()
     {
+        agent.speed = chaseSpeed;
+        Debug.Log("Chase speed: " + agent.speed);
+
         agent.SetDestination(player.transform.position);
     }
 
@@ -67,6 +72,9 @@ public class EnemyAiControl : MonoBehaviour
 
     void Patrol()
     {
+        agent.speed = patrolSpeed;
+        Debug.Log("Patrol speed: " + agent.speed);
+
         if (!walkpointSet)
         {
             SearchForDest();
