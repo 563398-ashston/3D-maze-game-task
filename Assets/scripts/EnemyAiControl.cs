@@ -24,9 +24,16 @@ public class EnemyAiControl : MonoBehaviour
     bool playerInSight;
     bool playerInAttackRange;
 
-    
+    // Attack
+    bool hasAttacked = false;
+
     void Start()
     {
+        if (hasAttacked || player == null)
+        {
+            return;
+        }
+
         agent = GetComponent<NavMeshAgent>();
         agent.speed = patrolSpeed;
 
@@ -59,21 +66,30 @@ public class EnemyAiControl : MonoBehaviour
 
     void Chase()
     {
-        agent.speed = chaseSpeed;
-        Debug.Log("Chase speed: " + agent.speed);
+        agent.isStopped = false;
 
+        agent.speed = chaseSpeed;
         agent.SetDestination(player.transform.position);
     }
 
     void Attack()
     {
+        hasAttacked = true;
 
+        // Stop the enemy
+        agent.isStopped = true;
+
+        // Trigger the death
+        Debug.Log("player killed");
+
+        // Kill the player
+        Destroy(player);
     }
 
     void Patrol()
     {
         agent.speed = patrolSpeed;
-        Debug.Log("Patrol speed: " + agent.speed);
+        //Debug.Log("Patrol speed: " + agent.speed);
 
         if (!walkpointSet)
         {
